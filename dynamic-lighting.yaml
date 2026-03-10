@@ -9,6 +9,7 @@ blueprint:
     Also configurable:
       • Minimum and maximum brightness as percentages (min 5–50%, max 50–100%),
       • The duration (in minutes) before sunset over which the color temperature transitions.
+
   domain: automation
 
   input:
@@ -185,14 +186,21 @@ blueprint:
 
 mode: single
 
+trigger_variables:
+  trigger_interval_value: !input trigger_interval
+
 trigger:
   - platform: time_pattern
-    minutes: !input trigger_interval
+    minutes: "*"
 
 condition:
   - condition: time
     after: !input start_time
     before: !input end_time
+
+  - condition: template
+    value_template: >
+      {{ (now().minute % (trigger_interval_value | int(1))) == 0 }}
 
 action:
   - variables:
@@ -262,7 +270,10 @@ action:
           {{ day_color_temp_value | int }}
         {% else %}
           {% set progress = (now_ts - sunset_offset_window) / (sunset_ts - sunset_offset_window) %}
-          {{ (day_color_temp_value | float + ((evening_color_temp_value | float - day_color_temp_value | float) * progress)) | round(0) }}
+          {{ (
+            day_color_temp_value | float
+            + ((evening_color_temp_value | float - day_color_temp_value | float) * progress)
+          ) | round(0) }}
         {% endif %}
 
       time_now: "{{ now().strftime('%H:%M') }}"
