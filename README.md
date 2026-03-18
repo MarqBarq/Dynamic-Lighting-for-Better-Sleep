@@ -1,11 +1,6 @@
 # Dynamic-Lighting-for-Better-Sleep
 
-Here’s a clean, professional README you can drop into GitHub or share with the blueprint. It’s structured, readable, and avoids fluff.
-
----
-
-# Dynamic Lighting Blueprint
-
+Here’s your updated README section with the 
 ### Lux-Based Circadian Lighting for Home Assistant
 
 ## Overview
@@ -14,7 +9,11 @@ This blueprint provides a dynamic lighting system that adjusts brightness and co
 
 Instead of relying on time-of-day alone, this system uses ambient light (lux) to determine how bright your lights should be, while still incorporating a circadian rhythm for color temperature throughout the day.
 
-The result is lighting that feels consistent, natural, and responsive to your environment.
+It also accounts for a critical real-world factor often overlooked in lighting automation: **perceived brightness**.
+
+A room can technically measure as “bright enough” in lux, but still *feel* dim due to cloud cover, storms, or indirect sunlight. This blueprint allows you to tune for that difference.
+
+The result is lighting that feels consistent, natural, and responsive to both measured and perceived conditions.
 
 ---
 
@@ -24,6 +23,7 @@ The result is lighting that feels consistent, natural, and responsive to your en
 * Smooth transitions to avoid abrupt lighting changes
 * Automatic shift from cool daylight tones to warm evening tones
 * Prevents unnecessary lighting when sufficient natural light is present
+* Adjustable thresholds to compensate for cloudy or low-contrast lighting conditions
 * Fully customizable to match room preferences and sensor placement
 
 ---
@@ -76,7 +76,21 @@ The system maps ambient light levels (lux) to brightness output.
 * When the room is bright (high lux), lights dim or remain off
 * Color temperature shifts throughout the day to match natural lighting patterns
 
-This creates a continuous, adaptive lighting experience rather than discrete scheduled changes.
+### Accounting for “Perceived Darkness”
+
+Lux readings alone do not always reflect how a space feels.
+
+For example:
+
+* A sunny room with direct light may feel bright at 250 lux
+* A cloudy or stormy day may also read 250 lux, but feel noticeably dim
+
+This blueprint allows you to compensate for that by adjusting your thresholds so that:
+
+* Lights can activate earlier on overcast days
+* Rooms maintain a consistent “feel,” not just a consistent measurement
+
+This is achieved through tuning `max_lux`, `min_lux`, and brightness ranges to match your environment and preferences.
 
 ---
 
@@ -118,11 +132,12 @@ Lower values make the system wait longer before increasing brightness.
 
 The lux level at which lights should be off or at minimum brightness.
 
+This is also your primary control for handling cloudy or overcast conditions.
+
 Example:
 
-* If set to 300, lights will not activate when the room is already bright
-
-Higher values make the system more aggressive in turning lights off.
+* Lower value (200–250): lights activate sooner on cloudy days
+* Higher value (300–400): lights stay off longer, even if the room feels dim
 
 ---
 
@@ -196,14 +211,14 @@ Initial recommended settings:
 * max_brightness: 80
 * transition_time: 10–60 seconds
 
-Adjust based on experience:
+### Adjusting for Weather and Room Feel
 
-* Lights too dim → increase max_brightness
-* Lights turning on too often → increase max_lux
-* Lights reacting too quickly → increase transition_time
-* Room feels too warm/cool → adjust color temperatures
+* Room feels too dark on cloudy days → lower `max_lux`
+* Lights staying off when you want them on → lower `max_lux`
+* Lights turning on too aggressively → raise `max_lux`
+* Room feels flat or dim even when lights are on → increase `max_brightness`
 
-Expect to refine settings over several days.
+Expect to refine settings over several days, especially across different weather conditions.
 
 ---
 
@@ -214,10 +229,10 @@ Most lighting automations are time-based, which assumes consistent environmental
 This blueprint prioritizes:
 
 * Real-world input over assumptions
+* Perceived comfort over raw sensor values
 * Gradual change over abrupt transitions
-* Comfort over strict automation rules
 
-The goal is for lighting to feel natural and unobtrusive.
+The goal is for lighting to feel natural and unobtrusive, regardless of external conditions.
 
 ---
 
@@ -225,6 +240,7 @@ The goal is for lighting to feel natural and unobtrusive.
 
 * Requires a reliable lux sensor for accurate behavior
 * Sensor placement significantly affects performance
+* Does not directly integrate weather APIs (adjustment is done through tuning)
 * Not ideal for rooms with highly inconsistent sensor readings (e.g., direct sunlight on sensor)
 
 ---
@@ -234,15 +250,15 @@ The goal is for lighting to feel natural and unobtrusive.
 * Place lux sensor at typical eye level or activity height
 * Avoid direct sunlight hitting the sensor
 * Use light groups instead of individual bulbs where possible
-* Test during different times of day (morning, afternoon, evening)
+* Test during different times of day and weather conditions
 
 ---
 
 ## Future Improvements (Optional Ideas)
 
+* Direct weather condition integration (cloud cover, rain)
 * Presence detection to disable automation when rooms are empty
 * Adaptive profiles for different rooms (office vs bedroom)
-* Integration with sleep/wake routines
 * Manual override mode
 
 ---
@@ -251,13 +267,6 @@ The goal is for lighting to feel natural and unobtrusive.
 
 This system is designed to disappear into the background. When configured correctly, it should not draw attention to itself. Instead, it should make your environment feel consistently comfortable throughout the day.
 
-Adjust slowly, observe behavior, and tune based on lived experience rather than strict values.
+The addition of perceived brightness tuning is what elevates this beyond a standard lux-based system. It allows your lighting to adapt not just to measurements, but to how a space actually feels to the people in it.
 
----
-
-If you want, I can also:
-
-* Add inline comments directly into your YAML blueprint
-* Create a “simple mode” version for less technical users
-* Or package this with screenshots and example configs for GitHub publishing
-
+Adjust slowly, observe behavior, and tune based on lived experience.
