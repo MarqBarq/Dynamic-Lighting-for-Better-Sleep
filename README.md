@@ -118,7 +118,7 @@ Using a light group is recommended for consistent behavior across multiple fixtu
 
 ### min_lux
 
-The lux level at which lights reach maximum brightness.
+The lux level at which lights reach maximum brightness. (Anything under XXX Lux, I want the lights fully on)
 
 Example:
 
@@ -130,7 +130,7 @@ Lower values make the system wait longer before increasing brightness.
 
 ### max_lux
 
-The lux level at which lights should be off or at minimum brightness.
+The lux level at which lights should be off or at minimum brightness. (Anything over XX Lux, the lights should be off)
 
 This is also your primary control for handling cloudy or overcast conditions.
 
@@ -143,9 +143,9 @@ Example:
 
 ### min_brightness
 
-The minimum brightness level the lights will use.
+The minimum brightness level the lights will use. 
 
-Prevents lights from turning completely off in low-light conditions unless explicitly desired.
+This is because some lights, like the HUE do not really have fine control until 20%, and so that is the where the low starts
 
 Typical range: 10–30%
 
@@ -155,7 +155,7 @@ Typical range: 10–30%
 
 The maximum brightness cap.
 
-This prevents lights from becoming uncomfortably bright.
+This prevents lights from becoming uncomfortably bright. Not everyone wants the lights at 100% after dark
 
 Typical range: 70–90%
 
@@ -165,14 +165,14 @@ Typical range: 70–90%
 
 The duration (in seconds) for brightness and color changes.
 
-Short transitions (2–5 seconds) feel responsive.
+Short transitions (2–5 seconds) feel responsive but is quite distracting. 
 Long transitions (30–1200 seconds) create a gradual ambient effect.
 
 ---
 
 ### color_temp_day
 
-The color temperature used during daytime hours.
+The color temperature used during daytime hours. This will have a more bright sunny quality.
 
 Typical values:
 
@@ -182,7 +182,7 @@ Typical values:
 
 ### color_temp_night
 
-The color temperature used during evening/night.
+The color temperature used during evening/night. More warm and better for long term sleep quality
 
 Typical values:
 
@@ -192,7 +192,7 @@ Typical values:
 
 ### sunset_offset (optional)
 
-Adjusts when the system begins transitioning to warmer tones.
+Adjusts when the system begins transitioning to warmer tones. This is simply when do you want it to start it's transition from cool to warm
 
 Example:
 
@@ -205,11 +205,11 @@ Example:
 
 Initial recommended settings:
 
-* min_lux: 10
-* max_lux: 250
+* min_lux: 1000
+* max_lux: 2500
 * min_brightness: 20
 * max_brightness: 80
-* transition_time: 10–60 seconds
+* transition_time: 30 seconds
 
 ### Adjusting for Weather and Room Feel
 
@@ -224,7 +224,9 @@ Expect to refine settings over several days, especially across different weather
 
 ## Design Philosophy
 
-Most lighting automations are time-based, which assumes consistent environmental conditions. In reality, lighting conditions vary due to weather, seasons, and room layout.
+Most lighting automations are time-based, which assumes consistent environmental conditions. In reality, lighting conditions vary due to weather, seasons, and room layout. The system builds a dimming profile based on your `max_lux` and `min_lux`. This means if your MAX (no lights on above) 2500, and your MIN was set at 1000 (Max Brightness), and the lux reading was 2000, that is 33% below the Lus curve (1000 - 2500), and so the system would turn on the lights at 33% of your MIN Brightness and MAX Brightness. If a storm rolls in, and it pushes the lux to 1200, that is 86% from lights off, the system would set the lights to 86%. As soon as the storm passed it would ramp them back to off. As the sun sets, it moves the lights from a cool white to a warm white. 
+
+The automation start and stop times are designed for mornings starts and after dark, when other automations may be used to turn off or change the lights this controls. 
 
 This blueprint prioritizes:
 
